@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Employee Management System</title>
+</head>
+<style>
+    body{
+        font-family: Arial, sans-serif;
+        margin: 0%;
+        padding: 0%;
+    }
+    .container{
+        max-width: 700px;
+        margin: 2px auto;
+        padding: 0 20PX;
+    }
+    h1{
+        text-align: center;
+    }
+    .filters {
+         margin-bottom: 20 px;
+    }
+    .filters label{
+        margin-right: 10px;
+    }
+    table{
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    table th, table td{
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+
+    }
+     pagination{
+        text-align: center;
+     }
+     . pagination buttom{
+        padding: 8px 20 px;
+        margin: 0 5px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #ddd;
+        border: none;
+        border-radius: 5px;
+     }
+     .pagination button:hover{
+        background-color: #0056b3;
+     }
+     .pagination button:disabled{
+        background-color:#ccc;
+        cursor: not-allowed;
+     }
+</style>
+<body>
+    <div class=" container">
+        <h1> Employee Management System</h1>
+        <div class=" filters">
+            <lebel for ="department-filter">filter by deparment</lebel>
+            <select id="deparment-filter">
+           <obtion value="">--select deparment--</obtion>
+           <optin  value="hr">HR</optin>
+           <optin  value="finance">finace</optin>
+           <optin  value="markating">markating</optin>
+           <optin  value="enginnering">enginnering</optin>
+           <optin  value="operations">operations</optin>
+            </select>
+
+            <label for="gender-filter">filter by Gender:</label>
+            <select id="Gender- filter">
+                   <optin  value="">--select Gender--</option>
+                    <optin  value="male">male</optin>
+                    <optin  value="female">female</optin>
+                    <optin  value="others">others</optin>
+
+            </select>
+            <label for="shot-order"> sort by salary:</label>
+            <select id="sort-order">
+                <optin  value="">--selcet order--</optin>
+                <optin  value="asc">Low to High</optin>
+                <optin  value="desc">High to Low</optin>
+
+
+            </select>
+        </div>
+        <table id="Employee-table">
+            <thead>
+                <tr>
+                    <th>s.no </th>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>Deparment</th>
+                    <th>salary</th>
+                </tr>
+            </thead>
+            <tbody id="Employee-list">
+             <!--Employee data will be populated here-->
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <button id="prev-btn" disabled>previous</button>
+            <span id="page-num"> page 1</span>
+            <button id="next-btn">Next</button>
+
+        </div>
+
+    </div>
+</body>
+<script>
+    document.addEventlistener("Domcontentloaded",function(){
+      const baseurl=" https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-employees";
+    
+     let currentpage = 1;
+     let currentlimit = 10;
+     let currentfilterby = "";
+     let currentliterValue ="";
+     let currentsortorder = "";
+
+     
+     const departmentfilter = document.getElementsByid(" department-filter");
+     const genderfilter = document.getElementsByid(" gender-filter");
+     const sortorder = document.getElementsByid("sort-order");
+     const Employeelist = document.getElementsByid("employee-list");
+     const prevbtn = document.getElementsByid("prev-btn");
+     const nextBtn = document.getElementsByid("next- btn");
+     const PageNum = document.getElementsByid("page-num");
+    
+     //  Fetch data from API
+     //  Fetch data from API
+
+     function fatchData(){
+        const url = ${ baseurl}?page=${currentpage}&limit=${currentlimit}&filterBy=${currentfilterBy}&filtervalue=${currentliterValue}&sort=${currentsortorder};
+        console.log("Fatching data from:", url);  // Debugging
+
+        fecth(url)
+         .then(response => response.json()) ;
+        .then( data=>{ 
+            console.log("Data recevied",data);  // Debugging
+            displayData(data);
+        })
+        .catch(console.error("Error fatching data",error));
+     }
+    //  Display data in table
+    // dispiay data in table
+     
+    function displayData( response){
+        const data = response.data;
+        Employeelist.innerHTML ="";
+        if (Array.isArray(data)){
+            data.forEach(( employee,index)=>{
+                const row =document.createElement("tr");
+                row.innerHTMl =
+                <td>${ index +1}</td>
+                <td>${employee.name}</td>
+                <td>${employee.gender}</td>
+                <td>${employee.departement }</td>
+                ;
+                employeelist.appendchild(row);
+            });
+        } else{
+            consple.error("Data is not in the expacted format:",response)
+        }
+        
+    }
+    // Event listener for departement filter
+    departmentfilter.addEventlistener("change",function(){
+     currentfilterBy =" department";
+     currentliterValue =this.value;
+    });
+
+    // Event listener for gender filter
+     genderfilter.addEventlistener("change",function(){
+        currentfilterby ="gender";
+        currentliterValue = this.value;
+        fatchData();
+     });
+     // Event listener for sort oder
+     sortorder.addEventlistener("change",function(){
+        currentsortorder= this.value;
+        fatchData();
+     })
+     // Event listener for previous buttom
+     prevBtn.addEventlistener("click", function(){
+        if(currentpage > 1){
+            currentpage --;
+            fatchData()
+        }
+     })
+     // Event listener for next button
+     nextBtn.addEventlistener("click", function(){
+        currentpage++;
+        fatchData();
+     });
+    //  initial fetch on page load
+    fetchData();
+    });
+</script>
+</html>
